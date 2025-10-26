@@ -1,38 +1,37 @@
-import express from 'express'
-import cors from 'cors'
-import dotenv from 'dotenv'
-dotenv.config()
-import cookieParser from 'cookie-parser'
-import morgan from 'morgan'
-import helmet from 'helmet'
-import connectDB from './config/connectDB.js'
-import userRouter from './route/user.route.js'
-import categoryRouter from './route/category.route.js'
-import uploadRouter from './route/upload.router.js'
-import subCategoryRouter from './route/subCategory.route.js'
-import productRouter from './route/product.route.js'
-import cartRouter from './route/cart.route.js'
-import addressRouter from './route/address.route.js'
-import orderRouter from './route/order.route.js'
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
+import morgan from 'morgan';    
+import helmet from 'helmet';
+import connectDB from './config/connectDb.js';
 
-const app = express()
-app.use(cors({
-  credentials: true,
-  origin: process.env.FRONTEND_URL
-}))
-app.use(express.json())
-app.use(cookieParser())
-app.use(morgan())
+dotenv.config();
+
+const app = express();
+
+
+app.use(cors());
+// app.options('/*', cors());
+
+app.use(express.json());
+app.use(cookieParser());
+app.use(morgan());
 app.use(helmet({
-  crossOriginResourcePolicy: false
-}))
+    crossOriginResourcePolicy: false
+}));
 
-const PORT  = 8080 || process.env.PORT 
+// const PORT  = 8080 || process.env.PORT 
 
-app.get("/" , (req ,res )=>{
+app.get("/", (req, res) => {
     res.json({
-            message :"server is running " + process.env.PORT
+        message: `Server is running on port ${process.env.PORT}`
+    });
+});  
 
-        })
-
-})
+// Connect DB and start server
+connectDB().then(() => {
+    app.listen(process.env.PORT, () => {
+        console.log("✅ Server is running on port", process.env.PORT);
+    });
+});
