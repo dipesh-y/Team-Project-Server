@@ -1,6 +1,7 @@
 import  UserModel from './../models/usermodel';
 import  bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken'
+import {sendEmail} from '../config/emailService.js';
 
 export async function registerUserController(req, res) {
     try {
@@ -25,42 +26,43 @@ export async function registerUserController(req, res) {
             })
         }
 
-        // const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
-
+        const verifyCode = Math.floor(1000+Math.random()*900000).toString();
         const salt = await bcrypt.genSalt(10);
         const hashPassword = await bcrypt.hash(password, salt);
         
-
+        
         user = new UserModel({
             email: email,
             password: hashPassword,
             name: name,
-            // otp: verifyCode,
-            // otpExpires: Date.now() + 600000
+            otp: verifyCode,
+            otpExpires: Date.now() + 600000
         });
 
         await user.save();
 
 //         //send verification email
-//         const verifyEmail = await sendEmailFun({
-//             sendTo: email,
-//             subject: "Verify email from Ecommerce App",
-//             text: "",
-//             html: VerificationEmail(name, verifyCode)
-//         })
+          const verifyEmail = await sendEmail({
+            sendTo :email,
+            subject : "Verify email from Ecommerce App",
+            html : verifyEmailTemplate({
+                name,
+                urrl : VerifyEmailUrl
+            })
+          })
 
-//         //Create a JWT token for verification purposes
-//         const token = jwt.sign(
-//             { email: user.email, id: user._id },
-//             process.env.JSON_WEB_TOKEN_SECRET_KEY
-//         );
+        //Create a JWT token for verification purposes
+        const token = jwt.sign(
+            { email: user.email, id: user._id },
+            process.env.JSON_WEB_TOKEN_SECRET_KEY
+        );
 
-//         return res.status(200).json({
-//             success: true,
-//             error: false,
-//             message: "User Registered successfully! Please verify your email.",
-//             token: token, // Optional: include this if needed for verification.s
-//         });
+        return res.status(200).json({
+            success: true,
+            error: false,
+            message: "User Registered successfully! Please verify your email.",
+            token: token, // Optional: include this if needed for verification.s
+        });
 
 
 
