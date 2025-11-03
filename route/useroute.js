@@ -1,2 +1,9 @@
 import {Router} from 'express'
-import {registerUserController} from '../controllers/user.controller.js';
+import {registerUserController,verifyEmailController} from '../controllers/usercontroller.js';
+
+
+const userRouter = Router()
+userRouter.post('/register', registerUserController)
+userRouter.post('/verifyEmail', verifyEmailController)
+
+export default userRouter;

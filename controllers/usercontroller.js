@@ -1,15 +1,18 @@
-import  UserModel from './../models/usermodel';
+import UserModel from '../models/usermodel.js'
 import  bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken'
 import {sendEmail} from '../config/emailService.js';
+import sendEmailFun from '../config/sendEmail.js';
+import VerificationEmail from './../utils/verifyEmailTemplate.js';
 
-export async function registerUserController(req, res) {
+
+export async function registerUserController(request, response) {
     try {
         let user;
 
-        const { name, email, password } = req.body;
+        const { name, email, password } = request.body;
         if (!name || !email || !password) {
-            return resp.status(400).json({
+            return response.status(400).json({
                 message: "provide email, name, password",
                 error: true,
                 success: false
@@ -19,18 +22,18 @@ export async function registerUserController(req, res) {
         user = await UserModel.findOne({ email: email });
 
         if (user) {
-            return res.json({
+            return response.json({
                 message: "User already registered with this email!",
                 error: true,
                 success: false
             })
         }
 
-        const verifyCode = Math.floor(1000+Math.random()*900000).toString();
+        const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
+
         const salt = await bcrypt.genSalt(10);
         const hashPassword = await bcrypt.hash(password, salt);
-        
-        
+
         user = new UserModel({
             email: email,
             password: hashPassword,
@@ -41,15 +44,13 @@ export async function registerUserController(req, res) {
 
         await user.save();
 
-//         //send verification email
-          const verifyEmail = await sendEmail({
-            sendTo :email,
-            subject : "Verify email from Ecommerce App",
-            html : verifyEmailTemplate({
-                name,
-                urrl : VerifyEmailUrl
-            })
-          })
+        //send verification email
+        const verifyEmail = await sendEmailFun({
+            sendTo: email,
+            subject: "Verify email from Ecommerce App",
+            text: "",
+            html: VerificationEmail(name, verifyCode)
+        })
 
         //Create a JWT token for verification purposes
         const token = jwt.sign(
@@ -57,7 +58,7 @@ export async function registerUserController(req, res) {
             process.env.JSON_WEB_TOKEN_SECRET_KEY
         );
 
-        return res.status(200).json({
+        return response.status(200).json({
             success: true,
             error: false,
             message: "User Registered successfully! Please verify your email.",
@@ -67,10 +68,44 @@ export async function registerUserController(req, res) {
 
 
     } catch (error) {
-        return res.status(500).json({ 
-           message: error.message || error,
-           error: true,
-           success: false
-         })
+        return response.status(500).json({
+            message: error.message || error,
+            error: true,
+            success: false
+        })
+    }
+}
+
+export async function verifyEmailController(request, response) {
+    try {
+        const { email, otp } = request.body;
+
+        const user = await UserModel.findOne({ email: email });
+        if (!user) {
+            return response.status(400).json({ error: true, success: false, message: "User not found" });
+        }
+
+        const isCodeValid = user.otp === otp;
+        const isNotExpired = user.otpExpires > Date.now();
+
+        if (isCodeValid && isNotExpired) {
+            user.verify_email = true;
+            user.otp = null;
+            user.otpExpires = null;
+            await user.save();
+            return response.status(200).json({ error: false, success: true, message: "Email verified successfully" });
+        } else if (!isCodeValid) {
+            return response.status(400), json({ error: true, success: false, message: "Invalid OTP" });
+        } else {
+            return response.status(400).json({ error: true, success: false, message: "OTP Expired" });
+        }
+
+
+    } catch (error) {
+        return response.status(500).json({
+            message: error.message || error,
+            error: true,
+            success: true
+        })
     }
 }
