@@ -6,6 +6,9 @@ import morgan from 'morgan';
 import helmet from 'helmet';
 import connectDB from './config/connectDb.js';
 import userRouter from './route/useroute.js'
+import bcrypt from "bcrypt"
+import nodemailer from "nodemailer";
+
 
 
 dotenv.config();
