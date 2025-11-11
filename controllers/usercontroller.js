@@ -268,7 +268,7 @@ export async function userAvatarController(request, response) {
 
                     imagesArr.push(result.secure_url);
                     fs.unlinkSync(`uploads/${request.files[i].filename}`);
-                    console.log(request.files[i].filename)
+                    // console.log(request.files[i].filename)
                 }
             );
         }
@@ -424,7 +424,11 @@ export async function forgotPasswordController(request, response) {
 
 
     } catch (error) {
-
+        return response.status(500).json({
+            message: error.message || error,
+            error: true,
+            success: false
+        });
     }
 }
 
@@ -498,7 +502,7 @@ export async function resetPassword(request, response) {
         const { email, newPassword, confirmPassword } = request.body;
         if (!email || !newPassword || !confirmPassword) {
             return response.status(400).json({
-                message: "Provide required feilds email,newPassword,confirmPassword"
+                message: "Provide required fields email,newPassword,confirmPassword"
             })
         }
 
@@ -522,7 +526,7 @@ export async function resetPassword(request, response) {
         const salt = await bcryptjs.genSalt(10);
         const hashPassword = await bcryptjs.hash(confirmPassword, salt);
 
-        user.password = jashPassword;
+        user.password = hashPassword;
         await user.save();
 
 
