@@ -3,6 +3,13 @@ import {registerUserController,verifyEmailController,loginUserController,logoutC
 import auth from '../middlewares/auth.js';
 import upload from '../middlewares/multer.js';
 import { removeImageFromCloudinary } from "../controllers/usercontroller.js";
+import { userAvatarController } from '../controllers/usercontroller.js';
+import { updateUserDetails } from '../controllers/usercontroller.js';
+import { forgotPasswordController } from '../controllers/usercontroller.js';
+import { verifyForgotPasswordOtp } from '../controllers/usercontroller.js';
+import { resetPassword } from '../controllers/usercontroller.js';
+import { refreshToken } from '../controllers/usercontroller.js';
+import { userDetails } from '../controllers/usercontroller.js';
 
 
 const userRouter = Router()
