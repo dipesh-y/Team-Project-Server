@@ -6,6 +6,14 @@ import VerificationEmail from './../utils/verifyEmailTemplate.js';
 import generatedAccessToken from '../utils/generatedAccessToken.js';
 import generatedRefreshToken from '../utils/generatedRefreshToken.js';
 import fs from 'fs';
+import cloudinary from ' ../config/clodinaryconfig.js ';
+
+cloudinary.config({
+    cloud_name: process.env.clodinary_config_cloud_name,
+    api_key: process.env.clodinary_config_api_key,
+    api_secret : process.env.clodinary_config_api_secret,
+    secure : true
+})
 
 
 export async function registerUserController(request, response) {

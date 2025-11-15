@@ -8,6 +8,7 @@ import connectDB from './config/connectDb.js';
 import userRouter from './route/useroute.js'
 import bcrypt from "bcrypt"
 import nodemailer from "nodemailer";
+import categoryRouter from './route/category.route.js';
 
 
 
@@ -35,6 +36,7 @@ app.get("/", (req, res) => {
 });  
 
 app.use('/api/user',userRouter)
+app.use('/api/category' , categoryRouter)
 // Connect DB and start server
 connectDB().then(() => {
     app.listen(process.env.PORT, () => {
