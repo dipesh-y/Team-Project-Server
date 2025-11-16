@@ -1,4 +1,4 @@
-import CategoryModel from "../models/category.model.js";
+import CategoryModel from "../models/categorymodel.js";
 import UserModel from "../models/usermodel.js";
 // import { v2 as cloudinary } from "cloudinary";
 import cloudinary from '../config/cloudinaryconfig.js';
@@ -60,7 +60,9 @@ export async function uploadImages(request, response) {
       _id: userId,
       avatar: imagesArr[0],
     });
-  } catch (error) {
+  
+  } 
+  catch (error) {
     return response.status(500).json({
       message: error.message,
       error: true,
