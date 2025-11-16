@@ -6,17 +6,19 @@ import VerificationEmail from '../utils/verifyEmailTemplate.js';
 import generatedAccessToken from '../utils/generatedAccessToken.js';
 import generatedRefreshToken from '../utils/generatedRefreshToken.js';
 import fs from 'fs';
-// import cloudinary from '../config/cloudinaryconfig.js';
-import { v2 as cloudinary } from "cloudinary";
+import cloudinary from '../config/cloudinaryconfig.js';
+
+// import { v2 as cloudinary } from "cloudinary";
+
+// console.log(cloudinary.config());
 
 
-
-cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CONFIG_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_CONFIG_API_KEY,
-    api_secret : process.env.CLOUDINARY_CONFIG_API_SECRET,
-    secure : true
-})
+// cloudinary.config({
+//     cloud_name: process.env.CLOUDINARY_CONFIG_CLOUD_NAME,
+//     api_key: process.env.CLOUDINARY_CONFIG_API_KEY,
+//     api_secret : process.env.CLOUDINARY_CONFIG_API_SECRET,
+//     secure : true
+// })
 
 
 export async function registerUserController(request, response) {
@@ -235,6 +237,8 @@ export async function userAvatarController(request, response) {
         const userId = request.userId; // auth middleware
         const image = request.files;
 
+        // console.log("files", request.files);
+
         const user = await UserModel.findOne({ _id: userId });
         if (!user) {
             return response.status(500).json({
@@ -254,14 +258,14 @@ export async function userAvatarController(request, response) {
 
 
         if (imageName) {
-            const res = await cloudinary.uploader.destroy(
-                imageName,
-                (error, result) => {
-                    // console.log(error,res)
-                }
-            );
+            // const res = await cloudinary.uploader.destroy(
+            //     imageName,
+            //     (error, result) => {
+            //         // console.log(error,res)
+            //     }
+            // );
 
-            // await cloudinary.uploader.destroy(imageName);
+            await cloudinary.uploader.destroy(imageName);
 
         }
 
@@ -270,27 +274,29 @@ export async function userAvatarController(request, response) {
         const options = {
             use_filename: true,
             unique_filename: false,
-            overwrite: false,
+            overwrite: false
         };
 
+        
         for (let i = 0; i < image?.length; i++) {
+            
+            // const img = await cloudinary.uploader.upload(
+            //     image[i].path,
+            //     options,
+            //     function (error, result) {
+            //         console.log("RESULT :" , result);
+            //         imagesArr.push(result.secure_url);
+            //         fs.unlinkSync(`uploads/${request.files[i].filename}`);
+            //         // console.log(request.files[i].filename)
+            //     }
+            // );
 
-            const img = await cloudinary.uploader.upload(
-                image[i].path,
-                options,
-                function (error, result) {
+             const result = await cloudinary.uploader.upload(image[i].path, options);
+            //  console.log("RESULT:", result);
+             imagesArr.push(result.secure_url);
 
-                    imagesArr.push(result.secure_url);
-                    fs.unlinkSync(`uploads/${request.files[i].filename}`);
-                    // console.log(request.files[i].filename)
-                }
-            );
-
-            //  const result = await cloudinary.uploader.upload(image[i].path, options);
-            //  imagesArr.push(result.secure_url);
-
-            //  // delete file from uploads folder
-            //  fs.unlinkSync(image[i].path);
+             // delete file from uploads folder
+             fs.unlinkSync(image[i].path);
 
         }
 
@@ -303,6 +309,7 @@ export async function userAvatarController(request, response) {
         });
 
     } catch (error) {
+        console.error("UPLOAD ERROR:", error); 
         return response.status(500).json({
             message: error.message || error,
             error: true,
@@ -315,25 +322,69 @@ export async function userAvatarController(request, response) {
 // '/api/user?removeImg=?imh1.jpg' or remove image
 
 export async function removeImageFromCloudinary(request, response) {
-    const imgUrl = request.query.img;
+    try{
+        const userId = request.userId;
+        const user = await UserModel.findOne({ _id: userId });
+        if (!user) {
+            return response.status(500).json({
+                message: "User not found",
+                error: true,
+                success: false
+            })
+        }
 
-    const urlArr = imgUrl.split("/");
-    const image = urlArr[urlArr.length - 1];
+         const imgUrl = request.query.img;
 
-    const imageName = image.split(".")[0];
+         const urlArr = imgUrl.split("/");
+         const image = urlArr[urlArr.length - 1];
 
-    if (imageName) {
-        const res = await cloudinary.uploader.destroy(
-            imageName,
-            (error, result) => {
-                // console.log(error,res)
+        const imageName = image.split(".")[0];
+
+        // if (imageName) {
+        //   const res = await cloudinary.uploader.destroy(
+        //     imageName,
+        //     (error, result) => {
+        //         // console.log(error,res)
+        //     }
+        //   );
+
+        //   if (res) {
+        //     user.avatar = "";
+        //     await user.save();
+        //     response.status(200).send(res);
+        //   }
+        // }
+
+        if (imageName) {
+            const res = await cloudinary.uploader.destroy(imageName);
+
+            console.log("DESTROY RESULT:", res);
+
+            if (res && res.result === "ok") {
+                user.avatar = "";
+                await user.save();
+
+                return response.status(200).json({
+                    message: "Image removed successfully",
+                    result: res
+                });
+            } else {
+                return response.status(400).json({
+                    message: "Image not found or already deleted",
+                    error: true,
+                    success: false
+                });
             }
-        );
-
-        if (res) {
-            response.status(200).send(res);
         }
     }
+    catch (error) {
+        return response.status(500).json({
+            message: error.message || error,
+            error: true,
+            success: false
+        })
+    }
+    
 }
 
 

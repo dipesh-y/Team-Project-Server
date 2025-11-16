@@ -1,14 +1,15 @@
 import CategoryModel from "../models/category.model.js";
 import UserModel from "../models/usermodel.js";
-import { v2 as cloudinary } from "cloudinary";
+// import { v2 as cloudinary } from "cloudinary";
+import cloudinary from '../config/cloudinaryconfig.js';
 import fs from "fs";
 
-cloudinary.config({
-  cloud_name: process.env.clodinary_config_cloud_name,
-  api_key: process.env.clodinary_config_api_key,
-  api_secret: process.env.clodinary_config_api_secret,
-  secure: true,
-});
+// cloudinary.config({
+//   cloud_name: process.env.clodinary_config_cloud_name,
+//   api_key: process.env.clodinary_config_api_key,
+//   api_secret: process.env.clodinary_config_api_secret,
+//   secure: true,
+// });
 
 let imagesArr = [];
 
