@@ -8,7 +8,7 @@ import connectDB from './config/connectDb.js';
 import userRouter from './route/useroute.js'
 import bcrypt from "bcrypt"
 import nodemailer from "nodemailer";
-import categoryRouter from './route/category.route.js';
+import categoryRouter from './route/categoryroute.js';
 
 
 

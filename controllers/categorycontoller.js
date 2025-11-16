@@ -1,5 +1,5 @@
 import CategoryModel from "../models/category.model.js";
-import UserModel from "../models/user.model.js";
+import UserModel from "../models/usermodel.js";
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
 

@@ -2,16 +2,19 @@ import UserModel from '../models/usermodel.js'
 import bcryptjs from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import sendEmailFun from '../config/sendEmail.js';
-import VerificationEmail from './../utils/verifyEmailTemplate.js';
+import VerificationEmail from '../utils/verifyEmailTemplate.js';
 import generatedAccessToken from '../utils/generatedAccessToken.js';
 import generatedRefreshToken from '../utils/generatedRefreshToken.js';
 import fs from 'fs';
-import cloudinary from ' ../config/clodinaryconfig.js ';
+// import cloudinary from '../config/cloudinaryconfig.js';
+import { v2 as cloudinary } from "cloudinary";
+
+
 
 cloudinary.config({
-    cloud_name: process.env.clodinary_config_cloud_name,
-    api_key: process.env.clodinary_config_api_key,
-    api_secret : process.env.clodinary_config_api_secret,
+    cloud_name: process.env.CLOUDINARY_CONFIG_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_CONFIG_API_KEY,
+    api_secret : process.env.CLOUDINARY_CONFIG_API_SECRET,
     secure : true
 })
 
@@ -41,8 +44,8 @@ export async function registerUserController(request, response) {
 
         const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
 
-        const salt = await bcrypt.genSalt(10);
-        const hashPassword = await bcrypt.hash(password, salt);
+        const salt = await bcryptjs.genSalt(10);
+        const hashPassword = await bcryptjs.hash(password, salt);
 
         user = new UserModel({
             email: email,
@@ -115,7 +118,7 @@ export async function verifyEmailController(request, response) {
         return response.status(500).json({
             message: error.message || error,
             error: true,
-            success: true
+            success: false
         })
     }
 }
@@ -257,6 +260,9 @@ export async function userAvatarController(request, response) {
                     // console.log(error,res)
                 }
             );
+
+            // await cloudinary.uploader.destroy(imageName);
+
         }
 
 
@@ -279,6 +285,13 @@ export async function userAvatarController(request, response) {
                     // console.log(request.files[i].filename)
                 }
             );
+
+            //  const result = await cloudinary.uploader.upload(image[i].path, options);
+            //  imagesArr.push(result.secure_url);
+
+            //  // delete file from uploads folder
+            //  fs.unlinkSync(image[i].path);
+
         }
 
         user.avatar = imagesArr[0];
