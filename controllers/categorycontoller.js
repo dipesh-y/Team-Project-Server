@@ -11,65 +11,38 @@ import fs from "fs";
 //   secure: true,
 // });
 
-let imagesArr = [];
+var imagesArr = [];
 
-
-export async function uploadImages(request, response) {
-  try {
-    imagesArr = [];
-    const userId = request.userId;
-    const files = request.files;
-
-    const user = await UserModel.findById(userId);
-    if (!user) {
-      return response.status(404).json({
-        message: "User not found",
-        error: true,
-        success: false,
-      });
-    }
-
-
-    if (user.avatar) {
-      const imgUrl = user.avatar;
-      const arr = imgUrl.split("/");
-      const last = arr[arr.length - 1];
-      const publicId = last.split(".")[0];
-
-      await cloudinary.uploader.destroy(publicId);
-    }
-
+export async function uploadImages(request,response){
+  try{
+    imagesArr =[];
+    const image = request.files;
 
     const options = {
-      use_filename: true,
-      unique_filename: false,
-      overwrite: false,
+      use_filename : true,
+      unique_filename : false
+
     };
+    for (let i =0; i < image?.length; i++){
+      const img = await cloudinary.uploader.upload(
+        image[i].push,options,function(error,result){
+          imagesArr.push(result.secure_url);
+          fs.unlinkSync(`uploads/${request.files[i].filename}`)
+        }
 
-    for (let i = 0; i < files.length; i++) {
-      const result = await cloudinary.uploader.upload(files[i].path, options);
-      imagesArr.push(result.secure_url);
-
-      fs.unlinkSync(files[i].path);
+      );
     }
-
-    user.avatar = imagesArr[0];
-    await user.save();
-
     return response.status(200).json({
-      _id: userId,
-      avatar: imagesArr[0],
-    });
-  
-  } 
-  catch (error) {
-    return response.status(500).json({
-      message: error.message,
-      error: true,
-      success: false,
-    });
+      images : imagesArr
+    })
+  }
+  catch (error){
+
   }
 }
+
+
+
 
 export async function createCategory(request, response) {
   try {
