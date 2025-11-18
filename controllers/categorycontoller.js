@@ -24,20 +24,31 @@ export async function uploadImages(request,response){
 
     };
     for (let i =0; i < image?.length; i++){
-      const img = await cloudinary.uploader.upload(
-        image[i].push,options,function(error,result){
-          imagesArr.push(result.secure_url);
-          fs.unlinkSync(`uploads/${request.files[i].filename}`)
-        }
+      // const img = await cloudinary.uploader.upload(
+      //   image[i].push,options,function(error,result){
+      //     imagesArr.push(result.secure_url);
+      //     fs.unlinkSync(`uploads/${request.files[i].filename}`)
+      //   }
+      // );
 
-      );
+         const img = await cloudinary.uploader.upload(image[i].path, options);
+                    //  console.log("RESULT:", result);
+                     imagesArr.push(img.secure_url);
+        
+                     // delete file from uploads folder
+                     fs.unlinkSync(image[i].path);
+      
     }
     return response.status(200).json({
       images : imagesArr
     })
   }
   catch (error){
-
+      return response.status(500).json({
+      message: error.message | error,
+      error: true,
+      success: false,
+    });
   }
 }
 
@@ -46,9 +57,12 @@ export async function uploadImages(request,response){
 
 export async function createCategory(request, response) {
   try {
+
+    
+
     const category = new CategoryModel({
       name: request.body.name,
-      image: request.body.image,
+      image: request.body.imagesArr,
       color: request.body.color,
       parentCatName: request.body.parentCatName,
       parentId: request.body.parentId || null,
@@ -56,12 +70,22 @@ export async function createCategory(request, response) {
 
     const saved = await category.save();
 
+    if(!saved){
+      return response.status(500).json({
+      message: "Category creation failed",
+      error: true,
+      success: false,
+    });
+    }
+    imagesArr = [];
+
     return response.status(201).json({
       message: "Category created successfully",
       success: true,
       category: saved,
     });
-  } catch (error) {
+  }
+   catch (error) {
     return response.status(500).json({
       message: error.message,
       error: true,
@@ -96,7 +120,7 @@ export async function getCategory(request, response) {
     });
   } catch (error) {
     return response.status(500).json({
-      message: error.message,
+      message: error.message | error,
       error: true,
       success: false,
     });

@@ -21,9 +21,9 @@ categoryRouter.get('/get/count/subCat', getSubCategoryCount)
 
 categoryRouter.get('/:id', getCategoryById)
 
-categoryRouter.delete('/delete/:id', auth, removeImageFromCloudinary)
+// categoryRouter.delete('/delete/:id', auth, removeImageFromCloudinary)
 
-categoryRouter.delete('/id', auth, deleteCategory)
+categoryRouter.delete('/:id', auth, deleteCategory)
 
 categoryRouter.put('/:id', auth, updateCategory)
 
