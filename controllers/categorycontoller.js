@@ -20,28 +20,23 @@ export async function uploadImages(request,response){
 
     const options = {
       use_filename : true,
-      unique_filename : false
-
+      unique_filename : false,
+      overwrite: false,
     };
     for (let i =0; i < image?.length; i++){
-      // const img = await cloudinary.uploader.upload(
-      //   image[i].push,options,function(error,result){
-      //     imagesArr.push(result.secure_url);
-      //     fs.unlinkSync(`uploads/${request.files[i].filename}`)
-      //   }
-      // );
-
-         const img = await cloudinary.uploader.upload(image[i].path, options);
-                    //  console.log("RESULT:", result);
-                     imagesArr.push(img.secure_url);
-        
-                     // delete file from uploads folder
-                     fs.unlinkSync(image[i].path);
-      
+            const img = await cloudinary.uploader.upload(
+                     image[i].path,
+                     options,
+                     function (error, result) {
+                         imagesArr.push(result.secure_url);
+                         fs.unlinkSync(`uploads/${request.files[i].filename}`);
+                     }
+                 );  
     }
+
     return response.status(200).json({
       images : imagesArr
-    })
+    });
   }
   catch (error){
       return response.status(500).json({
