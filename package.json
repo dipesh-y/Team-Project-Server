@@ -1,16 +1,24 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "This repository contains the **backend server** for our Team Project, built using **Node.js**, **Express**, and **MongoDB**.   It follows a modular architecture for scalability and maintainability — designed for collaborative development.",
+  "keywords": [],
+  "homepage": "https://github.com/dipesh-y/Team-Project-Server#readme",
+  "bugs": {
+    "url": "https://github.com/dipesh-y/Team-Project-Server/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dipesh-y/Team-Project-Server.git"
+  },
+  "license": "ISC",
+  "author": "",
   "type": "module",
+  "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
@@ -20,11 +28,14 @@
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "helmet": "^8.1.0",
+    "iconv-lite": "^0.7.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.19.1",
     "morgan": "^1.10.1",
     "multer": "^2.0.2",
-    "nodemailer": "^7.0.10",
-    "nodemon": "^3.1.10"
+    "nodemailer": "^7.0.10"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
   }
 }

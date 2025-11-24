@@ -10,6 +10,7 @@ import bcrypt from "bcrypt"
 import nodemailer from "nodemailer";
 import categoryRouter from './route/categoryroute.js';
 import productRouter from './route/productroute.js';
+import cartRouter from './route/cartroute.js';
 
 
 dotenv.config();
@@ -38,6 +39,9 @@ app.get("/", (req, res) => {
 app.use('/api/user',userRouter)
 app.use('/api/category' , categoryRouter)
 app.use('/api/product' , productRouter)
+app.use('/api/cart',cartRouter);
+
+
 
 // Connect DB and start server
 connectDB().then(() => {
